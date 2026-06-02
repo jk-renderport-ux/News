@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News - Render Fika Sammu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Noto+Sans+JP:wght@400;500;700&family=Zen+Old+Mincho:wght@700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      overflow-x: hidden;
+    }
+
+    body {
+      background: url('DSC_0050.JPG') center/cover no-repeat fixed;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+
+    .news-section {
+      position: relative;
+      width: 100%;
+      max-width: 1200px;
+      padding: 60px 40px 80px;
+    }
+
+    /* SVGブロブ背景 */
+    .blob-wrap {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .blob-bg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    /* タイトルエリア */
+    .news-header {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .news-title {
+      display: block;
+      margin: 0 auto;
+      height: 80px;
+      width: auto;
+    }
+
+    .news-subtitle {
+      font-size: 13px;
+      letter-spacing: 0.5em;
+      color: #fff;
+      margin-top: 6px;
+    }
+
+    .icon-left {
+      position: absolute;
+      z-index: 1;
+      height: 140px;
+      width: auto;
+      left: 60px;
+      top: 10px;
+    }
+
+    /* ======== カードグリッド（デスクトップ） ======== */
+    .cards-grid {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+
+    /* デスクトップのトラック */
+    .cards-track {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    /* カルーセル矢印ボタン（デスクトップでは非表示） */
+    .carousel-btn {
+      display: none;
+    }
+
+    /* ポラロイドカード */
+    .card {
+      background: url('base.png') center/100% 100% no-repeat;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 22px;
+      width: 263px;
+      height: 246px;
+      border-radius: 18px;
+      box-shadow: none;
+      cursor: pointer;
+      transition: transform 0.25s ease;
+      flex-shrink: 0;
+    }
+
+    .card:nth-child(odd)  { transform: rotate(4deg); }
+    .card:nth-child(even) { transform: rotate(-4deg); }
+    .card:hover { transform: rotate(0deg) translateY(-6px) scale(1.02); }
+
+    /* カード内コンテンツ */
+    .card-inner {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 13px;
+      width: 220px;
+    }
+
+    .card-img {
+      width: 220px;
+      height: 120px;
+      object-fit: cover;
+      display: block;
+      flex-shrink: 0;
+    }
+
+    .card-body {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 220px;
+    }
+
+    .card-meta {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      width: 220px;
+      height: 20px;
+    }
+
+    .card-date {
+      font-family: 'Zen Old Mincho', serif;
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 20px;
+      color: #454E3C;
+    }
+
+    .card-tag {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 4px 8px;
+      width: 64px;
+      height: 17px;
+      background: #D9D9D9;
+      border-radius: 1px;
+      font-family: 'Zen Old Mincho', serif;
+      font-weight: 700;
+      font-size: 12px;
+      line-height: 17px;
+      color: #454E3C;
+      white-space: nowrap;
+    }
+
+    .card-title {
+      width: 220px;
+      font-family: 'Zen Old Mincho', serif;
+      font-weight: 700;
+      font-size: 16px;
+      line-height: 23px;
+      text-align: justify;
+      color: #454E3C;
+    }
+
+    /* 一覧ボタン */
+    .more-btn-wrap {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .icon-right {
+      position: absolute;
+      z-index: 1;
+      height: 120px;
+      width: auto;
+      right: 60px;
+      bottom: 0;
+    }
+
+    .more-btn {
+      display: inline-flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      padding: 15px 30px 15px 35px;
+      gap: 20px;
+      width: 240px;
+      height: 45px;
+      background: #F4F4F4;
+      border: 1px solid #454E3C;
+      border-radius: 30px;
+      font-family: 'Zen Old Mincho', serif;
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 29px;
+      color: #454E3C;
+      white-space: nowrap;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .more-btn:hover { background: #454E3C; color: #F4F4F4; }
+    .more-btn:hover .arrow { border-color: #F4F4F4; }
+
+    .more-btn .arrow {
+      display: block;
+      width: 35px;
+      height: 0;
+      border-top: 1px solid #454E3C;
+      flex-shrink: 0;
+    }
+
+    /* ======== タブレット・モバイル共通 ======== */
+    @media (max-width: 1023px) {
+      .news-section { padding: 50px 0 70px; }
+      .icon-right { display: none; }
+      .icon-left { height: 90px; left: 10px; top: 0; }
+      .blob-bg { width: auto; height: 100%; }
+      .news-title { height: 60px; }
+
+      .cards-grid {
+        display: block;
+        overflow-x: clip;
+        overflow-y: visible;
+        position: relative;
+        padding: 24px 0;
+      }
+
+      .cards-track {
+        display: flex;
+        justify-content: flex-start;
+        transition: transform 0.35s ease;
+        will-change: transform;
+      }
+
+      .card { flex-shrink: 0; width: 263px; }
+      .card.active { transform: rotate(0deg) !important; }
+
+      .carousel-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 2;
+        width: 51px;
+        height: 28px;
+        background: #F4F4F4;
+        border: 1px solid #454E3C;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: background 0.2s;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .carousel-btn::after {
+        content: '';
+        display: block;
+        width: 16px;
+        height: 0;
+        border-top: 1px solid #454E3C;
+      }
+      .carousel-btn:hover { background: #454E3C; }
+      .carousel-btn:hover::after { border-color: #F4F4F4; }
+      .carousel-btn.prev { left: 8px; }
+      .carousel-btn.next { right: 8px; }
+      .carousel-btn:disabled { opacity: 0.3; cursor: default; }
+    }
+
+    /* タブレット: gap 24px（2枚用） */
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .cards-track { gap: 24px; }
+    }
+
+    /* スマホ: gap 16px（1枚＋peek用） */
+    @media (max-width: 767px) {
+      .cards-track { gap: 16px; }
+    }
+
+    .carousel-dots { display: none; }
+  </style>
+</head>
+<body>
+
+<section class="news-section">
+  <div class="blob-wrap"><img class="blob-bg" src="news_base.svg" alt=""></div>
+
+  <img src="icon.png" alt="" class="icon-left">
+
+  <div class="news-header">
+    <img src="News.svg" alt="News" class="news-title">
+    <p class="news-subtitle">最　新　情　報</p>
+  </div>
+
+  <div class="cards-grid">
+    <button class="carousel-btn prev" aria-label="前へ"></button>
+
+    <div class="cards-track">
+      <!-- カード 1 -->
+      <article class="card">
+        <div class="card-inner">
+          <img class="card-img" src="DSC_0050.JPG" alt="ニュース画像">
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">2026.05.01</span>
+              <span class="card-tag">お知らせ</span>
+            </div>
+            <p class="card-title">ゴールデンウィーク期間中の営業について</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- カード 2 -->
+      <article class="card">
+        <div class="card-inner">
+          <img class="card-img" src="DSC_0050.JPG" alt="ニュース画像">
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">2026.05.01</span>
+              <span class="card-tag">お知らせ</span>
+            </div>
+            <p class="card-title">ゴールデンウィーク期間中の営業について</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- カード 3 -->
+      <article class="card">
+        <div class="card-inner">
+          <img class="card-img" src="DSC_0050.JPG" alt="ニュース画像">
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">2026.05.01</span>
+              <span class="card-tag">お知らせ</span>
+            </div>
+            <p class="card-title">ゴールデンウィーク期間中の営業について</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- カード 4 -->
+      <article class="card">
+        <div class="card-inner">
+          <img class="card-img" src="DSC_0050.JPG" alt="ニュース画像">
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-date">2026.05.01</span>
+              <span class="card-tag">お知らせ</span>
+            </div>
+            <p class="card-title">ゴールデンウィーク期間中の営業について</p>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <button class="carousel-btn next" aria-label="次へ"></button>
+  </div>
+
+  <!-- ドットインジケーター（JS で生成） -->
+  <div class="carousel-dots"></div>
+
+  <img src="icon2.png" alt="" class="icon-right">
+
+  <div class="more-btn-wrap">
+    <a href="#" class="more-btn">
+      お知らせ一覧
+      <span class="arrow"></span>
+    </a>
+  </div>
+</section>
+
+<script>
+(function () {
+  const track   = document.querySelector('.cards-track');
+  const btnPrev = document.querySelector('.carousel-btn.prev');
+  const btnNext = document.querySelector('.carousel-btn.next');
+  if (!track) return;
+
+  const cards = Array.from(track.querySelectorAll('.card'));
+  let current = 0;
+  let currentMode = null;
+
+  // リサイズ・タッチのハンドラを保持して確実に削除できるようにする
+  let _resizeHandler = null;
+  let _touchStart = null;
+  let _touchEnd   = null;
+
+  function getMode() {
+    const w = window.innerWidth;
+    if (w >= 1024) return 'desktop';
+    if (w >= 768)  return 'tablet';
+    return 'mobile';
+  }
+
+  function update(visible) {
+    const cardW = cards[0].offsetWidth;
+    const gap   = currentMode === 'mobile' ? 16 : 24;
+    const step  = cardW + gap;
+    const viewW = track.parentElement.offsetWidth;
+    const totalVisible = visible * cardW + (visible - 1) * gap;
+    const offset = (viewW - totalVisible) / 2 - current * step;
+    track.style.transform = `translateX(${offset}px)`;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current >= cards.length - visible;
+    // アクティブカードに回転0を適用
+    cards.forEach((c, i) => c.classList.toggle('active', i === current));
+  }
+
+  function init(visible) {
+    current = 0;
+    update(visible);
+
+    const goTo = idx => {
+      current = Math.max(0, Math.min(idx, cards.length - visible));
+      update(visible);
+    };
+
+    btnPrev.onclick = () => goTo(current - 1);
+    btnNext.onclick = () => goTo(current + 1);
+
+    let startX = 0;
+    _touchStart = e => { startX = e.touches[0].clientX; };
+    _touchEnd   = e => {
+      const diff = startX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 40) goTo(current + (diff > 0 ? 1 : -1));
+    };
+    track.addEventListener('touchstart', _touchStart, { passive: true });
+    track.addEventListener('touchend',   _touchEnd,   { passive: true });
+
+    _resizeHandler = () => update(visible);
+    window.addEventListener('resize', _resizeHandler);
+  }
+
+  function destroy() {
+    track.style.transform = '';
+    current = 0;
+    cards.forEach(c => c.classList.remove('active'));
+    btnPrev.onclick = null;
+    btnNext.onclick = null;
+    if (_touchStart)    { track.removeEventListener('touchstart', _touchStart); _touchStart = null; }
+    if (_touchEnd)      { track.removeEventListener('touchend',   _touchEnd);   _touchEnd   = null; }
+    if (_resizeHandler) { window.removeEventListener('resize', _resizeHandler); _resizeHandler = null; }
+  }
+
+  function checkMode() {
+    const mode = getMode();
+    if (mode === currentMode) return;
+
+    // 前のモードをクリーンアップ
+    if (currentMode !== 'desktop') destroy();
+
+    currentMode = mode;
+
+    if (mode === 'tablet') init(2);
+    else if (mode === 'mobile') init(1);
+    // desktop は何もしない（CSS で横並び）
+  }
+
+  checkMode();
+  window.addEventListener('resize', checkMode);
+})();
+</script>
+
+</body>
+</html>

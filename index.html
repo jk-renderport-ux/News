@@ -411,6 +411,7 @@
   const cards = Array.from(track.querySelectorAll('.card'));
   let current = 0;
   let currentMode = null;
+  let _autoTimer  = null;
 
   // リサイズ・タッチのハンドラを保持して確実に削除できるようにする
   let _resizeHandler = null;
@@ -438,6 +439,18 @@
     cards.forEach((c, i) => c.classList.toggle('active', i === current));
   }
 
+  function startAuto(visible) {
+    stopAuto();
+    _autoTimer = setInterval(() => {
+      current = current >= cards.length - visible ? 0 : current + 1;
+      update(visible);
+    }, 2000);
+  }
+
+  function stopAuto() {
+    if (_autoTimer) { clearInterval(_autoTimer); _autoTimer = null; }
+  }
+
   function init(visible) {
     current = 0;
     update(visible);
@@ -445,25 +458,32 @@
     const goTo = idx => {
       current = Math.max(0, Math.min(idx, cards.length - visible));
       update(visible);
+      // 手動操作後は自動再生リセット（スマホのみ）
+      if (visible === 1) startAuto(visible);
     };
 
     btnPrev.onclick = () => goTo(current - 1);
     btnNext.onclick = () => goTo(current + 1);
 
     let startX = 0;
-    _touchStart = e => { startX = e.touches[0].clientX; };
+    _touchStart = e => { startX = e.touches[0].clientX; stopAuto(); };
     _touchEnd   = e => {
       const diff = startX - e.changedTouches[0].clientX;
       if (Math.abs(diff) > 40) goTo(current + (diff > 0 ? 1 : -1));
+      else if (visible === 1) startAuto(visible);
     };
     track.addEventListener('touchstart', _touchStart, { passive: true });
     track.addEventListener('touchend',   _touchEnd,   { passive: true });
 
     _resizeHandler = () => update(visible);
     window.addEventListener('resize', _resizeHandler);
+
+    // スマホのみ自動再生
+    if (visible === 1) startAuto(visible);
   }
 
   function destroy() {
+    stopAuto();
     track.style.transform = '';
     current = 0;
     cards.forEach(c => c.classList.remove('active'));
